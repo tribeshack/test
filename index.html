@@ -201,15 +201,19 @@
         drawClock();
         setInterval(() => { updateTime(); drawClock(); }, 1000);
 
-        // Fetch live news headlines from Reuters RSS feed
-        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.reuters.com/reuters/topNews')
+        // Fetch top stories from Hacker News public API
+        fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
             .then(res => res.json())
-            .then(data => {
-                if (data.items && data.items.length) {
-                    const headlines = data.items.map(item => item.title);
-                    const track = document.getElementById('ticker-track');
-                    track.innerHTML = headlines.map(h => `<span>&#9658; ${h}</span>`).join('');
-                }
+            .then(ids => {
+                const top10 = ids.slice(0, 10);
+                return Promise.all(top10.map(id =>
+                    fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
+                ));
+            })
+            .then(stories => {
+                const headlines = stories.filter(s => s && s.title).map(s => s.title);
+                const track = document.getElementById('ticker-track');
+                track.innerHTML = headlines.map(h => `<span>&#9658; ${h}</span>`).join('');
             })
             .catch(() => {
                 document.getElementById('ticker-track').textContent = 'Unable to load headlines.';
