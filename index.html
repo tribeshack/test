@@ -45,6 +45,13 @@
             color: #667eea;
             font-family: 'Courier New', monospace;
         }
+
+        canvas {
+            margin-top: 24px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
 </head>
 <body>
@@ -52,9 +59,85 @@
         <h1>Current Date &amp; Time</h1>
         <div class="date" id="current-date"></div>
         <div class="time" id="current-time"></div>
+        <canvas id="dial-clock" width="200" height="200"></canvas>
     </div>
 
     <script>
+        function drawClock() {
+            const canvas = document.getElementById('dial-clock');
+            const ctx = canvas.getContext('2d');
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const radius = 90;
+            const now = new Date();
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Face
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = '#f9f9f9';
+            ctx.fill();
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Hour marks
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * Math.PI) / 6;
+                const x1 = cx + Math.sin(angle) * (radius - 10);
+                const y1 = cy - Math.cos(angle) * (radius - 10);
+                const x2 = cx + Math.sin(angle) * (radius - 18);
+                const y2 = cy - Math.cos(angle) * (radius - 18);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            const sec = now.getSeconds();
+            const min = now.getMinutes();
+            const hr  = now.getHours() % 12;
+
+            // Hour hand
+            const hourAngle = (hr * Math.PI) / 6 + (min * Math.PI) / 360;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.sin(hourAngle) * (radius * 0.55), cy - Math.cos(hourAngle) * (radius * 0.55));
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Minute hand
+            const minAngle = (min * Math.PI) / 30 + (sec * Math.PI) / 1800;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.sin(minAngle) * (radius * 0.75), cy - Math.cos(minAngle) * (radius * 0.75));
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Second hand
+            const secAngle = (sec * Math.PI) / 30;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.sin(secAngle) * (radius * 0.85), cy - Math.cos(secAngle) * (radius * 0.85));
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Center dot
+            ctx.beginPath();
+            ctx.arc(cx, cy, 4, 0, 2 * Math.PI);
+            ctx.fillStyle = '#667eea';
+            ctx.fill();
+        }
+
         function updateTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -67,11 +150,9 @@
             document.getElementById('current-date').textContent = now.toLocaleDateString(undefined, options);
         }
         
-        // Update time immediately
         updateTime();
-        
-        // Update time every second
-        setInterval(updateTime, 1000);
+        drawClock();
+        setInterval(() => { updateTime(); drawClock(); }, 1000);
     </script>
 </body>
 </html>
