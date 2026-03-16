@@ -201,8 +201,8 @@
         drawClock();
         setInterval(() => { updateTime(); drawClock(); }, 1000);
 
-        // Fetch live news headlines from BBC RSS feed
-        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbcnews.com/news/rss.xml')
+        // Fetch live news headlines from Reuters RSS feed
+        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.reuters.com/reuters/topNews')
             .then(res => res.json())
             .then(data => {
                 if (data.items && data.items.length) {
