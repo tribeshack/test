@@ -29,6 +29,13 @@
             font-size: 24px;
         }
         
+        .date {
+            font-size: 20px;
+            color: #555;
+            margin-bottom: 10px;
+            font-family: 'Arial', sans-serif;
+        }
+
         .time {
             font-size: 48px;
             font-weight: bold;
@@ -39,7 +46,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Current Time</h1>
+        <h1>Current Date &amp; Time</h1>
+        <div class="date" id="current-date"></div>
         <div class="time" id="current-time"></div>
     </div>
 
@@ -49,8 +57,11 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-            
+
             document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString(undefined, options);
         }
         
         // Update time immediately
