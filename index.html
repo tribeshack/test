@@ -52,6 +52,48 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        .ticker-wrap {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 0;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .ticker-label {
+            display: inline-block;
+            background: #667eea;
+            color: #fff;
+            font-weight: bold;
+            padding: 0 14px;
+            margin-right: 16px;
+            font-size: 14px;
+            line-height: 24px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .ticker-track {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker-scroll 40s linear infinite;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .ticker-track span {
+            margin-right: 60px;
+        }
+
+        @keyframes ticker-scroll {
+            0%   { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
     </style>
 </head>
 <body>
@@ -60,6 +102,11 @@
         <div class="date" id="current-date"></div>
         <div class="time" id="current-time"></div>
         <canvas id="dial-clock" width="200" height="200"></canvas>
+    </div>
+
+    <div class="ticker-wrap">
+        <span class="ticker-label">NEWS</span>
+        <span class="ticker-track" id="ticker-track">Loading headlines...</span>
     </div>
 
     <script>
@@ -153,6 +200,20 @@
         updateTime();
         drawClock();
         setInterval(() => { updateTime(); drawClock(); }, 1000);
+
+        // Fetch live news headlines from BBC RSS feed
+        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbcnews.com/news/rss.xml')
+            .then(res => res.json())
+            .then(data => {
+                if (data.items && data.items.length) {
+                    const headlines = data.items.map(item => item.title);
+                    const track = document.getElementById('ticker-track');
+                    track.innerHTML = headlines.map(h => `<span>&#9658; ${h}</span>`).join('');
+                }
+            })
+            .catch(() => {
+                document.getElementById('ticker-track').textContent = 'Unable to load headlines.';
+            });
     </script>
 </body>
 </html>
